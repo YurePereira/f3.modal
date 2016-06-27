@@ -58,16 +58,20 @@ var modal = (function($, w, d, u) {
         }
 
       },
-      close: function(selector) {
+      close: function(selector, func, parameters) {
 
         var element = $(selector);
 
         //Model state closed
         opend = false;
 
+        func = typeof func == 'function' ? func : function() {};
+        parameters = Array.isArray(parameters) ? parameters : [];
+
         element.fadeOut(300, function() {
 
           $(this).remove();
+          func.apply(this, parameters);
 
           //If queue length bigger then 0 run next in queue
           // if (queue.length > 0) {
@@ -84,6 +88,18 @@ var modal = (function($, w, d, u) {
     }
   };
 
+  /**
+   * @param Object config {
+   * @example
+   * _alert({
+   * title: '',
+   * message: '',
+   * callbackClosed: function() {}
+   *
+   *
+   * })
+   *
+   */
   var _alert = function(config) {
 
     //Load template alert
@@ -100,12 +116,14 @@ var modal = (function($, w, d, u) {
       title.html(config.title);
       body.html(config.message);
 
+      //Callback Closed
+      config.callbackClosed = config.hasOwnProperty('callbackClosed') && typeof config.callbackClosed == 'function' ? config.callbackClosed : null;
       //Events
       close.click(function() {
-        defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal]);
+        defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal, config.callbackClosed]);
       });
       btnOkay.click(function() {
-        defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal]);
+        defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal, config.callbackClosed]);
       });
       //Add alert modal on the page document.
       modalTemplate.addClass('f3-closed');
