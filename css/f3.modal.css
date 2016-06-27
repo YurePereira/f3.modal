@@ -1,0 +1,38 @@
+/*
+Author: Francisco Yure <yure.pereira@weyes.com.br>
+Date: 2016-06-26
+*/
+/* line 6, ../sass/f3.modal.scss */
+.f3-opend {
+  display: block; }
+
+/* line 10, ../sass/f3.modal.scss */
+.f3-closed {
+  display: none; }
+
+/* line 14, ../sass/f3.modal.scss */
+.f3-modal {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; }
+  /* line 23, ../sass/f3.modal.scss */
+  .f3-modal .f3-modal-alert {
+    background: #fff;
+    margin: 50px auto 0;
+    width: 500px;
+    border: 1px solid #c3c3c3; }
+    /* line 30, ../sass/f3.modal.scss */
+    .f3-modal .f3-modal-alert .f3-header {
+      padding: 10px;
+      border-bottom: 1px solid #c3c3c3; }
+    /* line 45, ../sass/f3.modal.scss */
+    .f3-modal .f3-modal-alert .f3-body {
+      padding: 10px;
+      border-bottom: 1px solid #c3c3c3; }
+    /* line 50, ../sass/f3.modal.scss */
+    .f3-modal .f3-modal-alert .f3-footer {
+      padding: 10px;
+      background: #eee; }

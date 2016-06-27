@@ -1,0 +1,145 @@
+/**
+ * Description here:
+ *
+ * @author Yure Pereira
+ * @since 26-06-2016
+ * @version 1.0.0
+ */
+var modal = (function($, w, d, u) {
+
+  var template = null,
+      modalTemplate = null,
+      path = '../js/parcial/',
+      opend = false;
+
+  //Queue to execution.
+  var queue = [];
+
+  var partialTemplate = {
+    alert: {
+      url: path + 'alert.html',
+      selector: {
+        modal: '.f3-modal',
+        title: '.f3-title > h1',
+        close: '.f3-close',
+        body: '.f3-body',
+        footer: '.f3-footer',
+        okay: '.btn-f3-ok'
+      },
+      cacheHTML: null
+    },
+    comfirm: '',
+    form: '',
+    iframe: ''
+  };
+
+  //Default values of variables and functions
+  var defaultSetting = {
+    action: {
+      open: function(selector, func, parameters) {
+
+        if (!opend) {
+
+          var element = $(selector);
+          element
+          .removeClass('f3-closed')
+          .addClass('f3-opend');
+
+          //Model state opend
+          opend = true;
+
+          func = typeof func == 'function' ? func : function() {};
+          parameters = Array.isArray(parameters) ? parameters : [];
+
+          element.fadeIn(300, function() {
+            func.apply(this, parameters);
+          });
+
+        }
+
+      },
+      close: function(selector) {
+
+        var element = $(selector);
+
+        //Model state closed
+        opend = false;
+
+        element.fadeOut(300, function() {
+
+          $(this).remove();
+
+          //If queue length bigger then 0 run next in queue
+          // if (queue.length > 0) {
+          //   console.log(queue);
+          //   alert(queue[0]);
+          // }
+
+        });
+
+      },
+      isOpend: function() {
+        return opend;
+      }
+    }
+  };
+
+  var _alert = function(config) {
+
+    //Load template alert
+    var load = function(data) {
+
+      modalTemplate = $(data);
+      var modal = modalTemplate.find(partialTemplate.alert.selector.modal),
+        title = modalTemplate.find(partialTemplate.alert.selector.title),
+        close = modalTemplate.find(partialTemplate.alert.selector.close),
+        body = modalTemplate.find(partialTemplate.alert.selector.body),
+        footer = modalTemplate.find(partialTemplate.alert.selector.footer);
+        btnOkay = modalTemplate.find(partialTemplate.alert.selector.okay);
+
+      title.html(config.title);
+      body.html(config.message);
+
+      //Events
+      close.click(function() {
+        defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal]);
+      });
+      btnOkay.click(function() {
+        defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal]);
+      });
+      //Add alert modal on the page document.
+      modalTemplate.addClass('f3-closed');
+      $(d.body).append(modalTemplate);
+      defaultSetting.action.open(partialTemplate.alert.selector.modal);
+
+    };
+
+    var cacheData = partialTemplate.alert.cacheHTML;
+    if (cacheData != null) {
+
+      load.apply(this, [cacheData]);
+
+    } else {
+      $.get(partialTemplate.alert.url, function(data) {
+
+        load.apply(this, [data]);
+        //Save cache html page modal alert.
+        partialTemplate.alert.cacheHTML = data;
+
+      }).fail(function() {
+          alert('Error');
+      });
+    }
+
+  };
+
+  return {
+    alert: function(config) {
+      _alert(config);
+    },
+    isOpend: function() {
+      return defaultSetting.action.isOpend();
+    }
+  };
+
+})(jQuery, window, document);
