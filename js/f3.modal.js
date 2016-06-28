@@ -13,7 +13,9 @@ var modal = (function($, w, d, u) {
       opend = false;
 
   //Queue to execution.
-  var queue = [];
+  var queue = {
+    alert: []
+  };
 
   var partialTemplate = {
     alert: {
@@ -38,24 +40,18 @@ var modal = (function($, w, d, u) {
     action: {
       open: function(selector, func, parameters) {
 
-        if (!opend) {
+        var element = $(selector);
+        element.addClass('f3-opend');
 
-          var element = $(selector);
-          element
-          .removeClass('f3-closed')
-          .addClass('f3-opend');
+        //Model state opend
+        opend = true;
 
-          //Model state opend
-          opend = true;
+        func = typeof func == 'function' ? func : function() {};
+        parameters = Array.isArray(parameters) ? parameters : [];
 
-          func = typeof func == 'function' ? func : function() {};
-          parameters = Array.isArray(parameters) ? parameters : [];
-
-          element.fadeIn(300, function() {
-            func.apply(this, parameters);
-          });
-
-        }
+        element.fadeIn(300, function() {
+          func.apply(this, parameters);
+        });
 
       },
       close: function(selector, func, parameters) {
@@ -74,10 +70,9 @@ var modal = (function($, w, d, u) {
           func.apply(this, parameters);
 
           //If queue length bigger then 0 run next in queue
-          // if (queue.length > 0) {
-          //   console.log(queue);
-          //   alert(queue[0]);
-          // }
+          if (queue.alert.length > 0) {
+             _alert(queue.alert.shift());
+          }
 
         });
 
@@ -126,9 +121,16 @@ var modal = (function($, w, d, u) {
         defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal, config.callbackClosed]);
       });
       //Add alert modal on the page document.
-      modalTemplate.addClass('f3-closed');
-      $(d.body).append(modalTemplate);
-      defaultSetting.action.open(partialTemplate.alert.selector.modal);
+
+      if (!opend) {
+
+        modalTemplate.attr('style', 'display: none');
+        $(d.body).append(modalTemplate);
+        defaultSetting.action.open(partialTemplate.alert.selector.modal);
+
+      } else {
+        queue.alert.push(config);
+      }
 
     };
 
