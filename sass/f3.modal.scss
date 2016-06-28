@@ -39,6 +39,21 @@ Date: 2016-06-26
     }
 
     .f3-close {
+      float: right;
+      margin-top: -80px;
+      background: #f00;
+      text-align: center;
+      line-height: 29px;
+      margin-right: -20px;
+      border-radius: 50px;
+
+      a {
+        text-decoration: none;
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        display: block;
+      }
 
     }
 

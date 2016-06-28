@@ -28,11 +28,27 @@ Date: 2016-06-26
     .f3-modal .f3-modal-alert .f3-header {
       padding: 10px;
       border-bottom: 1px solid #c3c3c3; }
-    /* line 45, ../sass/f3.modal.scss */
+    /* line 41, ../sass/f3.modal.scss */
+    .f3-modal .f3-modal-alert .f3-close {
+      float: right;
+      margin-top: -80px;
+      background: #f00;
+      text-align: center;
+      line-height: 29px;
+      margin-right: -20px;
+      border-radius: 50px; }
+      /* line 50, ../sass/f3.modal.scss */
+      .f3-modal .f3-modal-alert .f3-close a {
+        text-decoration: none;
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        display: block; }
+    /* line 60, ../sass/f3.modal.scss */
     .f3-modal .f3-modal-alert .f3-body {
       padding: 10px;
       border-bottom: 1px solid #c3c3c3; }
-    /* line 50, ../sass/f3.modal.scss */
+    /* line 65, ../sass/f3.modal.scss */
     .f3-modal .f3-modal-alert .f3-footer {
       padding: 10px;
       background: #eee; }
