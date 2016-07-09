@@ -18,6 +18,7 @@ var modal = (function($, w, d, u) {
   };
 
   var partialTemplate = {
+    //Partial template for alert modal
     alert: {
       url: path + 'alert.html',
       selector: {
@@ -27,6 +28,16 @@ var modal = (function($, w, d, u) {
         body: '.f3-body',
         footer: '.f3-footer',
         okay: '.btn-f3-ok'
+      },
+      cacheHTML: null
+    },
+    //Partial template for popup modal
+    popup: {
+      url: path + 'popup.html',
+      selector: {
+        modal: '.f3-modal',
+        close: '.f3-close',
+        body: '.f3-body',
       },
       cacheHTML: null
     },
@@ -98,7 +109,7 @@ var modal = (function($, w, d, u) {
   var _alert = function(config) {
 
     //Load template alert
-    var load = function(data) {
+    var init = function(data) {
 
       modalTemplate = $(data);
       var modal = modalTemplate.find(partialTemplate.alert.selector.modal),
@@ -120,10 +131,10 @@ var modal = (function($, w, d, u) {
       btnOkay.click(function() {
         defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal, config.callbackClosed]);
       });
-      //Add alert modal on the page document.
 
       if (!opend) {
 
+        //Add alert modal on the page document.
         modalTemplate.attr('style', 'display: none');
         $(d.body).append(modalTemplate);
         defaultSetting.action.open(partialTemplate.alert.selector.modal);
@@ -137,12 +148,12 @@ var modal = (function($, w, d, u) {
     var cacheData = partialTemplate.alert.cacheHTML;
     if (cacheData != null) {
 
-      load.apply(this, [cacheData]);
+      init.apply(this, [cacheData]);
 
     } else {
       $.get(partialTemplate.alert.url, function(data) {
 
-        load.apply(this, [data]);
+        init.apply(this, [data]);
         //Save cache html page modal alert.
         partialTemplate.alert.cacheHTML = data;
 
@@ -153,10 +164,59 @@ var modal = (function($, w, d, u) {
 
   };
 
+  var _popup = function(config) {
+
+    //Init popup config
+    var init = function(data) {
+
+      modalTemplate = $(data);
+      var modal = modalTemplate.find(partialTemplate.popup.selector.modal),
+        close = modalTemplate.find(partialTemplate.popup.selector.close),
+        body = modalTemplate.find(partialTemplate.popup.selector.body);
+
+      body.html(config.content);
+
+      //Callback Closed
+      config.callbackClosed = config.hasOwnProperty('callbackClosed') && typeof config.callbackClosed == 'function' ? config.callbackClosed : null;
+      //Events
+      close.click(function() {
+        defaultSetting.action.close.apply(this, [partialTemplate.popup.selector.modal, config.callbackClosed]);
+      });
+
+      if (!opend) {
+
+        modalTemplate.attr('style', 'display: none');
+        $(d.body).append(modalTemplate);
+        defaultSetting.action.open(partialTemplate.popup.selector.modal);
+
+      } else {
+        queue.popup.push(config);
+      }
+
+    };
+
+    var cacheData = partialTemplate.popup.cacheHTML;
+    if (cacheData != null) {
+
+      init.apply(this, [cacheData]);
+
+    } else {
+      $.get(partialTemplate.popup.url, function(data) {
+
+        init.apply(this, [data]);
+        //Save cache html page modal popup.
+        partialTemplate.popup.cacheHTML = data;
+
+      }).fail(function() {
+          alert('Error');
+      });
+    }
+
+  };
+
   return {
-    alert: function(config) {
-      _alert(config);
-    },
+    alert: _alert,
+    popup: _popup,
     isOpend: function() {
       return defaultSetting.action.isOpend();
     }
