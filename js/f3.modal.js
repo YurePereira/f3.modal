@@ -7,14 +7,18 @@
  */
 var modal = (function($, w, d, u) {
 
+  var _modal = new Function();
+
   var template = null,
       modalTemplate = null,
       path = '../js/parcial/',
-      opend = false;
+      opend = false,
+      _this = new _modal();
 
   //Queue to execution.
   var queue = {
-    alert: []
+    alert: [],
+    popup: []
   };
 
   var partialTemplate = {
@@ -49,7 +53,7 @@ var modal = (function($, w, d, u) {
   //Default values of variables and functions
   var defaultSetting = {
     action: {
-      open: function(selector, func, parameters) {
+      open: function(selector, callback, parameters) {
 
         var element = $(selector);
         element.addClass('f3-opend');
@@ -57,32 +61,41 @@ var modal = (function($, w, d, u) {
         //Model state opend
         opend = true;
 
-        func = typeof func == 'function' ? func : function() {};
+        callback = typeof callback == 'function' ? callback : function() {};
         parameters = Array.isArray(parameters) ? parameters : [];
 
         element.fadeIn(300, function() {
-          func.apply(this, parameters);
+          callback.apply(null, parameters);
         });
 
       },
-      close: function(selector, func, parameters) {
+      close: function(selector, callback, parameters) {
 
         var element = $(selector);
 
         //Model state closed
         opend = false;
 
-        func = typeof func == 'function' ? func : function() {};
+        callback = typeof callback == 'function' ? callback : function() {};
         parameters = Array.isArray(parameters) ? parameters : [];
 
         element.fadeOut(300, function() {
 
           $(this).remove();
-          func.apply(this, parameters);
+          callback.apply(null, parameters);
 
           //If queue length bigger then 0 run next in queue
-          if (queue.alert.length > 0) {
-             _alert(queue.alert.shift());
+          for (var modal in queue) {
+            if (queue.hasOwnProperty(modal) && queue[modal].length > 0) {
+
+              //Find modal function name
+              var fn = _this['_' + modal];
+
+              if (typeof fn === 'function') {
+                fn.apply(null, [queue[modal].shift()]);
+              }
+
+            }
           }
 
         });
@@ -94,104 +107,130 @@ var modal = (function($, w, d, u) {
     }
   };
 
+  _modal.prototype._init = function(callback, parameters) {
+
+    //Generic code here.
+
+    if (typeof callback === 'function') {
+      callback.apply(null, parameters);
+    }
+
+  };
+
   /**
-   * @param Object config {
+   * @param {object} config {
    * @example
    * _alert({
-   * title: '',
-   * message: '',
-   * callbackClosed: function() {}
-   *
-   *
+   *     title: '',
+   *     message: '',
+   *     callbackClosed: function() {}
    * })
    *
    */
-  var _alert = function(config) {
+   _modal.prototype._alert = function(config) {
 
     //Load template alert
     var init = function(data) {
 
-      modalTemplate = $(data);
-      var modal = modalTemplate.find(partialTemplate.alert.selector.modal),
-        title = modalTemplate.find(partialTemplate.alert.selector.title),
-        close = modalTemplate.find(partialTemplate.alert.selector.close),
-        body = modalTemplate.find(partialTemplate.alert.selector.body),
-        footer = modalTemplate.find(partialTemplate.alert.selector.footer);
-        btnOkay = modalTemplate.find(partialTemplate.alert.selector.okay);
+      _this._init(function(data) {
 
-      title.html(config.title);
-      body.html(config.message);
+        modalTemplate = $(data);
+        var modal = modalTemplate.find(partialTemplate.alert.selector.modal),
+          title = modalTemplate.find(partialTemplate.alert.selector.title),
+          close = modalTemplate.find(partialTemplate.alert.selector.close),
+          body = modalTemplate.find(partialTemplate.alert.selector.body),
+          footer = modalTemplate.find(partialTemplate.alert.selector.footer),
+          btnOkay = modalTemplate.find(partialTemplate.alert.selector.okay);
 
-      //Callback Closed
-      config.callbackClosed = config.hasOwnProperty('callbackClosed') && typeof config.callbackClosed == 'function' ? config.callbackClosed : null;
-      //Events
-      close.click(function() {
-        defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal, config.callbackClosed]);
-      });
-      btnOkay.click(function() {
-        defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal, config.callbackClosed]);
-      });
+        title.html(config.title);
+        body.html(config.message);
 
-      if (!opend) {
+        //Callback Closed
+        config.callbackClosed = config.hasOwnProperty('callbackClosed') && typeof config.callbackClosed == 'function' ? config.callbackClosed : null;
+        //Events
+        close.click(function() {
+          defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal, config.callbackClosed]);
+        });
+        btnOkay.click(function() {
+          defaultSetting.action.close.apply(this, [partialTemplate.alert.selector.modal, config.callbackClosed]);
+        });
 
-        //Add alert modal on the page document.
-        modalTemplate.attr('style', 'display: none');
-        $(d.body).append(modalTemplate);
-        defaultSetting.action.open(partialTemplate.alert.selector.modal);
+        if (!opend) {
 
-      } else {
-        queue.alert.push(config);
-      }
+          //Add alert modal on the page document.
+          modalTemplate.attr('style', 'display: none');
+          $(d.body).append(modalTemplate);
+          defaultSetting.action.open(partialTemplate.alert.selector.modal);
+
+        } else {
+          queue.alert.push(config);
+        }
+
+      }, [data]);
 
     };
 
     var cacheData = partialTemplate.alert.cacheHTML;
     if (cacheData != null) {
 
-      init.apply(this, [cacheData]);
+      init.apply(null, [cacheData]);
 
     } else {
       $.get(partialTemplate.alert.url, function(data) {
 
-        init.apply(this, [data]);
+        init.apply(null, [data]);
         //Save cache html page modal alert.
         partialTemplate.alert.cacheHTML = data;
 
       }).fail(function() {
-          alert('Error');
+          throw 'Error: without internet access.';
+          //alert('Error: without internet access.');
       });
     }
 
   };
 
-  var _popup = function(config) {
+  /**
+   * @param {object} config {
+   * @example
+   * _popup({
+   *     content: '',
+   *     callbackClosed: function() {}
+   * })
+   *
+   */
+  _modal.prototype._popup = function(config) {
 
     //Init popup config
     var init = function(data) {
 
-      modalTemplate = $(data);
-      var modal = modalTemplate.find(partialTemplate.popup.selector.modal),
-        close = modalTemplate.find(partialTemplate.popup.selector.close),
-        body = modalTemplate.find(partialTemplate.popup.selector.body);
+      _this._init(function(data) {
 
-      body.html(config.content);
+        modalTemplate = $(data);
+        var modal = modalTemplate.find(partialTemplate.popup.selector.modal),
+          close = modalTemplate.find(partialTemplate.popup.selector.close),
+          body = modalTemplate.find(partialTemplate.popup.selector.body);
 
-      //Callback Closed
-      config.callbackClosed = config.hasOwnProperty('callbackClosed') && typeof config.callbackClosed == 'function' ? config.callbackClosed : null;
-      //Events
-      close.click(function() {
-        defaultSetting.action.close.apply(this, [partialTemplate.popup.selector.modal, config.callbackClosed]);
-      });
+        body.html(config.content);
 
-      if (!opend) {
+        //Callback Closed
+        config.callbackClosed = config.hasOwnProperty('callbackClosed') && typeof config.callbackClosed == 'function' ? config.callbackClosed : null;
+        //Events
+        close.click(function() {
+          defaultSetting.action.close.apply(this, [partialTemplate.popup.selector.modal, config.callbackClosed]);
+        });
 
-        modalTemplate.attr('style', 'display: none');
-        $(d.body).append(modalTemplate);
-        defaultSetting.action.open(partialTemplate.popup.selector.modal);
+        if (!opend) {
 
-      } else {
-        queue.popup.push(config);
-      }
+          modalTemplate.attr('style', 'display: none');
+          $(d.body).append(modalTemplate);
+          defaultSetting.action.open(partialTemplate.popup.selector.modal);
+
+        } else {
+          queue.popup.push(config);
+        }
+
+      }, [data]);
 
     };
 
@@ -208,15 +247,16 @@ var modal = (function($, w, d, u) {
         partialTemplate.popup.cacheHTML = data;
 
       }).fail(function() {
-          alert('Error');
+        throw 'Error: without internet access.';
+        //alert('Error: without internet access.');
       });
     }
 
   };
 
   return {
-    alert: _alert,
-    popup: _popup,
+    alert: _this._alert,
+    popup: _this._popup,
     isOpend: function() {
       return defaultSetting.action.isOpend();
     }

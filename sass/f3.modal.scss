@@ -29,10 +29,9 @@ Date: 2016-06-26
     border: 1px solid #c3c3c3;
 
     .f3-header {
-
       padding: 10px;
       border-bottom: 1px solid #c3c3c3;
-
+      position: relative;
     }
 
     .f3-title {
@@ -41,12 +40,12 @@ Date: 2016-06-26
 
     .f3-close {
 
-      float: right;
-      margin-top: -80px;
+      position: absolute;
+      right: -10px;
+      top: -10px;
       background: #f00;
       text-align: center;
       line-height: 29px;
-      margin-right: -20px;
       border-radius: 50px;
 
       a {
@@ -79,12 +78,13 @@ Date: 2016-06-26
     margin: 50px auto 0;
     width: 500px;
     border: 1px solid #c3c3c3;
+    position: relative;
 
     .f3-close {
 
-      float: right;
-      margin-top: -10px;
-      margin-right: -10px;
+      position: absolute;
+      right: -10px;
+      top: -10px;
       background: #f00;
       text-align: center;
       line-height: 29px;
