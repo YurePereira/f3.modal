@@ -7,13 +7,14 @@
  */
 var modal = (function($, w, d, u) {
 
-  var _modal = new Function();
+  "use strict";
+  var Modal = new Function();
 
   var template = null,
       modalTemplate = null,
       path = '../js/parcial/',
       opend = false,
-      _this = new _modal();
+      _this = new Modal();
 
   //Queue to execution.
   var queue = {
@@ -107,7 +108,7 @@ var modal = (function($, w, d, u) {
     }
   };
 
-  _modal.prototype._init = function(callback, parameters) {
+  Modal.prototype._init = function(callback, parameters) {
 
     //Generic code here.
 
@@ -127,7 +128,7 @@ var modal = (function($, w, d, u) {
    * })
    *
    */
-   _modal.prototype._alert = function(config) {
+   Modal.prototype._alert = function(config) {
 
     //Load template alert
     var init = function(data) {
@@ -199,7 +200,7 @@ var modal = (function($, w, d, u) {
    * })
    *
    */
-  _modal.prototype._popup = function(config) {
+   Modal.prototype._popup = function(config) {
 
     //Init popup config
     var init = function(data) {
